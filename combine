@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Author: Paul Lam
+# UWNetID: Paul0h
+# CSE 374 Homework 2
+# Problem number 1 (combine)
+# 04/18/2023
+#
+# Combine takes 2 or more arguments/files and outputs into a single file
+
+# Checks if fewer than two arguments are given
+if [ $# -lt 2 ]; then
+    echo "Usage: combine outputfilename [inputfilename ...]" >&2
+    exit 1
+fi
+
+outputFile="$1"
+
+# Remove the output file if it exists
+if [ -e "$outputFile" ]; then
+    rm "$outputFile"
+    exit 1
+fi
+
+shift
+
+# Combines the input files and errors into the output file
+cat "$@" 1>> "$outputFile" 2>> "$outputFile"
+
+# Removes if output file is empty
+if [ ! -s "$outputFile" ]; then
+    rm "$outputFile"
+fi
+
+exit 0

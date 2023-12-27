@@ -1,0 +1,54 @@
+#!/bin/bash
+# Author: Paul Lam
+# UWNEtID: Paul0h
+# CSE 374 Homework 2
+# Problem number 2
+# 04/18/2023
+#
+# spellcheck checks for unrecongnized words in the iput file. It keeps track of total unique words,
+# total unrecognized words, and stores the unreconized words into an output file
+
+# Checks for provided arguments
+if [ "$#" -eq 0 ]; then
+    echo "Usage: spellcheck filename ..." >&2
+    exit 1
+fi
+
+# Goes through all provided files, checks to see if the file is valid (1st), checks to see if there
+# is an output and either creates or replaces (2nd), reads through each file checking to see if the
+# words are exist and counts unique errors(3rd), and prints out the summary for each file.
+dictionary="/usr/share/dict/words"
+
+for file in "$@"; do
+    if [ ! -f "$file" ]; then
+        echo "./spellcheck error: $file does not exist - skipping." >&2
+        continue
+    fi
+
+    outputFile="${file}.spelling"
+
+    if [ -f "$outputFile" ]; then
+        echo "./spellcheck replacing $outputFile file"
+        rm "$outputFile"
+    else
+        echo "./spellcheck creating $outputFile file"
+    fi
+
+    totalErrors=0
+    uniqueErrors=0
+
+    while IFS= read -r line; do
+        for word in $line; do
+            if ! grep -iqw "$word" "$dictionary"; then
+                echo "$word" >> "$outputFile"
+                totalErrors=$((totalErrors + 1))
+            fi
+        done
+    done < "$file"
+
+    uniqueErrors=$(sort -u "$outputFile" | wc -l)
+
+    echo "./spellcheck processed $file and found $uniqueErrors spelling errors $totalErrors of which are unique."
+done
+
+exit 0
